@@ -9,14 +9,12 @@
 
     <target name="compile">
         <mkdir dir="build"/>
-        <javac encoding="iso-8859-1" srcdir="src" 
-            destdir="build"
-            classpath="lib/gson-2.2.2.jar" />
+        <javac encoding="iso-8859-1" srcdir="src" destdir="build" classpath="lib/gson-2.2.2.jar" />
         <copy todir="build">
             <fileset dir="src" excludes="*.java"/>
         </copy>
     </target>
-    
+
     <target name="server">
         <java classname="it.unibo.ai.didattica.competition.tablut.server.Server" fork="true">
             <classpath>
@@ -25,6 +23,7 @@
             </classpath>
         </java>
     </target>
+
     <target name="randomwhite">
         <java classname="it.unibo.ai.didattica.competition.tablut.client.TablutRandomWhiteClient" fork="true">
             <classpath>
@@ -33,6 +32,7 @@
             </classpath>
         </java>
     </target>
+
     <target name="randomblack">
         <java classname="it.unibo.ai.didattica.competition.tablut.client.TablutRandomBlackClient" fork="true">
             <classpath>
@@ -42,6 +42,22 @@
         </java>
     </target>
 
+    <target name="humanwhite">
+        <java classname="it.unibo.ai.didattica.competition.tablut.client.TablutHumanWhiteClient" fork="true">
+            <classpath>
+                <pathelement location="lib/gson-2.2.2.jar"/>
+                <pathelement location="build"/>
+            </classpath>
+        </java>
+    </target>
 
+    <target name="humanblack">
+        <java classname="it.unibo.ai.didattica.competition.tablut.client.TablutHumanBlackClient" fork="true">
+            <classpath>
+                <pathelement location="lib/gson-2.2.2.jar"/>
+                <pathelement location="build"/>
+            </classpath>
+        </java>
+    </target>
 
 </project>
