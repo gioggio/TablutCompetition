@@ -21,6 +21,7 @@ import it.unibo.ai.didattica.competition.tablut.domain.GameAshtonTablut;
 import it.unibo.ai.didattica.competition.tablut.domain.GameModernTablut;
 import it.unibo.ai.didattica.competition.tablut.domain.GameTablut;
 import it.unibo.ai.didattica.competition.tablut.domain.State;
+import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 import it.unibo.ai.didattica.competition.tablut.domain.StateTablut;
 import it.unibo.ai.didattica.competition.tablut.domain.StateBrandub;
 import it.unibo.ai.didattica.competition.tablut.gui.Gui;
@@ -69,7 +70,7 @@ class GameThread implements Runnable {
         /**
          * Number of hours that a game can last before the timeout
          */
-        int hourlimit = 5;
+        int hourlimit = 10;
         /**
          * Endgame state reached?
          */
@@ -254,36 +255,25 @@ class GameThread implements Runnable {
             System.exit(1);
         }
 
+        switch (gameState.getTurn()) {
+        case WHITE:
+            tin = Turnwhite;
+            break;
+        case BLACK:
+            tin = Turnblack;
+            break;
+        default:
+            loggSys.warning("Chiusura sistema per errore turno");
+            break;
+        }
+
         // GAME CYCLE
         while (!endgame) {
             // RECEIVE MOVE
 
             // System.out.println("State: \n"+state.toString());
             System.out.println("Waiting for " + gameState.getTurn() + "...");
-            Date ti = new Date();
-            long hoursoccurred = (ti.getTime() - starttime.getTime()) / 60 / 60 / 1000;
-            if (hoursoccurred > hourlimit) {
-                System.out.println("TIMEOUT! END OF THE GAME...");
-                this.loggSys.warning("Chiusura programma per timeout di " + hourlimit + " ore");
-            }
 
-            switch (gameState.getTurn()) {
-            case WHITE:
-                tin = Turnwhite;
-                break;
-            case BLACK:
-                tin = Turnblack;
-                break;
-            case BLACKWIN:
-                break;
-            case WHITEWIN:
-                break;
-            case DRAW:
-                break;
-            default:
-                this.loggSys.warning("Chiusura sistema per errore turno");
-                System.exit(4);
-            }
             // create the process that listen the answer
             t = new Thread(tin);
             t.start();
@@ -348,6 +338,15 @@ class GameThread implements Runnable {
             // In case not, the client should always read and act when is their
             // turn
 
+            // GAME TOO LONG, TIMEOUT
+            Date ti = new Date();
+            long hoursoccurred = (ti.getTime() - starttime.getTime()) / 60 / 60 / 1000;
+            if (hoursoccurred > hourlimit) {
+                System.out.println("TIMEOUT! END OF THE GAME...");
+                this.loggSys.warning("Chiusura programma per timeout di " + hourlimit + " ore");
+                gameState.setTurn(Turn.DRAW);
+            }
+
             // SEND STATE TO PLAYERS
             try {
                 this.theGson = gson.toJson(gameState);
@@ -364,19 +363,31 @@ class GameThread implements Runnable {
                 System.exit(1);
             }
 
-            // CHECK END OF GAME
-            if (!gameState.getTurn().equalsTurn("W") && !gameState.getTurn().equalsTurn("B")) {
+            switch (gameState.getTurn()) {
+            case WHITE:
+                tin = Turnwhite;
+                break;
+            case BLACK:
+                tin = Turnblack;
+                break;
+            case BLACKWIN:
                 System.out.println("END OF THE GAME");
-                if (gameState.getTurn().equalsTurn(StateTablut.Turn.DRAW.toString())) {
-                    System.out.println("RESULT: DRAW");
-                }
-                if (gameState.getTurn().equalsTurn(StateTablut.Turn.WHITEWIN.toString())) {
-                    System.out.println("RESULT: PLAYER WHITE WIN");
-                }
-                if (gameState.getTurn().equalsTurn(StateTablut.Turn.BLACKWIN.toString())) {
-                    System.out.println("RESULT: PLAYER BLACK WIN");
-                }
+                System.out.println("RESULT: PLAYER BLACK WIN");
                 endgame = true;
+                break;
+            case WHITEWIN:
+                System.out.println("END OF THE GAME");
+                System.out.println("RESULT: PLAYER WHITE WIN");
+                endgame = true;
+                break;
+            case DRAW:
+                System.out.println("END OF THE GAME");
+                System.out.println("RESULT: DRAW");
+                endgame = true;
+                break;
+            default:
+                this.loggSys.warning("Chiusura sistema");
+                System.exit(4);
             }
         }
     }
