@@ -313,9 +313,11 @@ class GameThread implements Runnable {
 
                     if (blackErrors > this.errors) {
                         System.out.println("TOO MANY ERRORS FOR BLACK PLAYER; PLAYER WHITE WIN!");
-                        e.printStackTrace();
-                        this.loggSys.warning("Chiusura sistema per troppi errori giocatore nero");
-                        System.exit(1);
+                        // e.printStackTrace();
+                        // this.loggSys.warning("Chiusura sistema per troppi errori giocatore nero");
+                        // System.exit(1);
+                        // The server is not immediately closed in order to let both players know who won
+                        gameState.setTurn(Turn.WHITEWIN);
                     } else {
                         System.out.println("Error for black player...");
                     }

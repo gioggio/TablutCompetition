@@ -54,3 +54,7 @@ dkms.conf
 # Project-specific folders and files
 build/
 logs/
+garbage/
+
+# IntelliJ IDEA
+.idea/
